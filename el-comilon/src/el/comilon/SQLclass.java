@@ -12,7 +12,7 @@ import javax.swing.JOptionPane;
 public class SQLclass {
 
     private final String DRIVER = "oracle.jdbc.driver.OracleDriver";
-    private final String URL = "jdbc:oracle:thin:@DESKTOP-UQRDMT2:1521:XE";
+    private final String URL = "jdbc:oracle:thin:@LAPTOP-02BMGRRG:1521:XE";
     private final String USER = "COMILONBD";
     private final String PASWORD = "1234";
 
