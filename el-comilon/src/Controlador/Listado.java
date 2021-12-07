@@ -2,8 +2,9 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package el.comilon.ShowData;
+package Controlador;
 
+import Modelo.Reporte;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,31 +15,30 @@ import java.sql.Timestamp;
 import java.awt.Toolkit;
 import java.util.concurrent.*;
 
-import el.comilon.SQLclass;
+import el.comilon.BD.SQLclass;
+import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 /**
  *
  * @author Joaquin
  */
-public class ShowCampos implements Runnable {
-    
-    public void run() {
-        
-        String sSQL = "";
+public class Listado {
+
+    public ArrayList<Reporte> buscarTodosLibros() {
+        ArrayList<Reporte> lista = new ArrayList<Reporte>();
         SQLclass conexion = new SQLclass();
 
         try {
-            sSQL = "SELECT * FROM cliente";
+
             Connection con = conexion.conectar();
             Statement cn = con.createStatement();
-            ResultSet res = cn.executeQuery(sSQL);
-            
             CallableStatement cstIN = con.prepareCall("{call SP_INSERT_REPORTE()}");
-            
+
             cstIN.execute();
-            
+
             CallableStatement cst = con.prepareCall("{call OBTENER_REPORTE (?,?,?,?,?,?,?,?,?,?)}");
 
             cst.registerOutParameter(1, java.sql.Types.INTEGER);
@@ -53,46 +53,37 @@ public class ShowCampos implements Runnable {
             cst.registerOutParameter(10, java.sql.Types.TIMESTAMP);
 
             cst.execute();
-            
-            int ID = cst.getInt(1);
-            int montoProm = cst.getInt(2);
-            int cantVentas = cst.getInt(3);
-            int cantReclamo = cst.getInt(4);
-            int cantReclamoPend = cst.getInt(5);
-            int cantReclamoResu = cst.getInt(6);
-            String calidadReclamo = cst.getString(7);
-            int cantPedFinalizado = cst.getInt(8);
-            int cantPedCancelado = cst.getInt(9);
-            Timestamp fecha =  cst.getTimestamp(10);
-            
+
+            Reporte reporte = new Reporte();
+
+            reporte.setId(cst.getInt(1));
+            reporte.setMontoPromVentas(cst.getInt(2));
+            reporte.setCantidadVentas(cst.getInt(3));
+            reporte.setCantidadReclamos(cst.getInt(4));
+            reporte.setCantidadReclamosPendientes(cst.getInt(5));
+            reporte.setCantidadReclamosResueltos(cst.getInt(6));
+            reporte.setCalidadReclamo(cst.getString(7));
+            reporte.setCantidadPedidofinalizado(cst.getInt(8));
+            reporte.setCantidadPedidoCancelado(cst.getInt(9));
+
+            Timestamp fecha = cst.getTimestamp(10);
+
             LocalDateTime fechaReporte = fecha.toLocalDateTime();
-            
+
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
-                "dd-MM-YYYY HH:mm:ss a");
-            
+                    "dd-MM-YYYY HH:mm:ss a");
+
             String dateTimeString = fechaReporte.format(formatter);
-            
-            
-            System.out.print(dateTimeString+"\n");
-            System.out.print("-----\n");
-            
-        } catch (SQLException ex) {
-            System.out.println("Error: " + ex.getMessage());
+
+            reporte.setFecha(dateTimeString);
+
+            lista.add(reporte);
+
+        } catch (Exception e) {
+            System.out.println("Error al obtener reporte " + e.getMessage());
+
         }
-        
-        Toolkit.getDefaultToolkit().beep();
-    }
 
-    public static void main(String[] args) {
-        
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-        Runnable task = new ShowCampos();
-        int initialDelay = 0;
-        int periodicDelay = 1;
-        scheduler.scheduleAtFixedRate(task, initialDelay, periodicDelay,
-                TimeUnit.MINUTES
-        );
-        
+        return lista;
     }
 }
