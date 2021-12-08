@@ -27,7 +27,7 @@ import java.util.ArrayList;
  */
 public class Listado {
 
-    public ArrayList<Reporte> buscarTodosLibros() {
+    public ArrayList<Reporte> obtenerReporte() {
         ArrayList<Reporte> lista = new ArrayList<Reporte>();
         SQLclass conexion = new SQLclass();
 
@@ -83,7 +83,7 @@ public class Listado {
             System.out.println("Error al obtener reporte " + e.getMessage());
 
         }
-
         return lista;
+        
     }
 }
